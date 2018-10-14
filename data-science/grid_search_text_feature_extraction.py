@@ -22,7 +22,7 @@ loader or setting them to None to get the 20 of them.
 
 from __future__ import print_function
 
-from pprint import pprint
+from pprint import pformat
 import time
 import logging
 
@@ -34,12 +34,6 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.externals import joblib
 
-print(__doc__)
-
-# Display progress logs on stdout
-logging.basicConfig(level=logging.INFO,
-                    format='%(asctime.time)s %(levelname)s %(message)s')
-
 
 ###############################################################################
 class TextFeatureExtractor():
@@ -48,33 +42,43 @@ class TextFeatureExtractor():
         self.pipeline = Pipeline([
                                  ('vect', CountVectorizer()),
                                  ('tfidf', TfidfTransformer()),
-                                 ('clf', SGDClassifier()),
+                                 ('clf', SGDClassifier(max_iter=5)),
                                 ])
         self.param_grid = param_grid
         self.data = None
         self.search_results = None
         self.best_parameters = {}
+        self.timestr = time.strftime("%Y%m%d_%H%M%S")
+        self.init_log()
         self.init_data()
         self.grid_search()
         self.grid_fit()
         self.extract_best_parameters()
         self.pickle_results()
 
+    def init_log(self):
+        '''
+        Initialize the log
+        '''
+        logging.basicConfig(filename='logs/grid_search_{}.txt'.format(self.timestr),
+                            filemode='w',
+                            format='%(asctime)s -  %(levelname)s - %(message)s',
+                            level=logging.INFO)
 
     def init_data(self):
         '''
         Loads 20 newsgroups training dataset for requested categories
         '''
-        print("Loading 20 newsgroups dataset for categories:")
-        print(self.categories)
+        logging.info("Loading 20 newsgroups dataset for categories:")
+        logging.info(self.categories)
 
         self.data = fetch_20newsgroups(subset='train', 
                                        categories=self.categories)
-        print("%d documents" % len(self.data.filenames))
-        print("%d categories" % len(self.data.target_names))
-        print()
+        logging.info("{} documents".format(len(self.data.filenames)))
+        logging.info("{} categories".format(len(self.data.target_names)))
+        logging.info("")
         return self.data
-
+    
     def grid_search(self):
         '''
         Performs Grid Search based on passed parameters
@@ -87,32 +91,31 @@ class TextFeatureExtractor():
         '''
         Fits data to the Grid Search parameters
         '''
-        print("Performing grid search...")
-        print("pipeline:", [name for name, _ in self.pipeline.steps])
-        print("parameters:")
-        pprint(self.param_grid)
+        logging.info("Performing grid search...")
+        logging.info("pipeline:{}".format([name for name, _ in self.pipeline.steps]) )
+        logging.info("parameters:")
+        logging.info(pformat(self.param_grid))
         t0 = time.time()
         self.search_results.fit(self.data.data, self.data.target)
-        print("done in %0.3fs" % (time.time() - t0))
-        print()
+        logging.info("done in {0:.3f}".format((time.time() - t0)) )
+        logging.info("")
 
     def extract_best_parameters(self):
         '''
         extracts the best parameters from the Grid Search
         '''
-        print("Best score: %0.3f" % self.search_results.best_score_)
-        print("Best parameters set:")
+        logging.info("Best score: {0:.3f}".format(self.search_results.best_score_))
+        logging.info("Best parameters set:")
         self.best_parameters = self.search_results.best_estimator_.get_params()
         for param_name in sorted(self.param_grid.keys()):
-            print("\t%s: %r" % (param_name, self.best_parameters[param_name]))
+            logging.info("\t{}: {}".format(param_name, self.best_parameters[param_name]))
         return self.best_parameters
     
     def pickle_results(self):
         '''
         Pickles the results into timestamped file 
         '''
-        timestr = time.strftime("%Y%m%d_%H%M%S")
-        pickle_name = 'grid_search_parameters_{}.pkl'.format(timestr)
+        pickle_name = 'output/grid_search_parameters_{}.pkl'.format(self.timestr)
         joblib.dump(self.best_parameters, pickle_name, compress = 1)
 
 

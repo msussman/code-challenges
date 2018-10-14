@@ -1,0 +1,20 @@
+2018-10-14 16:14:26,785 -  INFO - Loading 20 newsgroups dataset for categories:
+2018-10-14 16:14:26,785 -  INFO - ['alt.atheism', 'talk.religion.misc']
+2018-10-14 16:14:27,071 -  INFO - 857 documents
+2018-10-14 16:14:27,072 -  INFO - 2 categories
+2018-10-14 16:14:27,072 -  INFO - 
+2018-10-14 16:14:27,072 -  INFO - Performing grid search...
+2018-10-14 16:14:27,072 -  INFO - pipeline:['vect', 'tfidf', 'clf']
+2018-10-14 16:14:27,072 -  INFO - parameters:
+2018-10-14 16:14:27,073 -  INFO - {'clf__alpha': (1e-05, 1e-06),
+ 'clf__penalty': ('l2', 'elasticnet'),
+ 'vect__max_df': (0.5, 0.75, 1.0),
+ 'vect__ngram_range': ((1, 1), (1, 2))}
+2018-10-14 16:15:01,674 -  INFO - done in 34.601
+2018-10-14 16:15:01,674 -  INFO - 
+2018-10-14 16:15:01,675 -  INFO - Best score: 0.943
+2018-10-14 16:15:01,675 -  INFO - Best parameters set:
+2018-10-14 16:15:01,677 -  INFO - 	clf__alpha: 1e-06
+2018-10-14 16:15:01,677 -  INFO - 	clf__penalty: l2
+2018-10-14 16:15:01,677 -  INFO - 	vect__max_df: 0.5
+2018-10-14 16:15:01,677 -  INFO - 	vect__ngram_range: (1, 1)
